@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camel="http://camel.apache.org/schema/spring"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd          
+		http://camel.apache.org/schema/spring 
+		http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="helloWorldProcessor" class="my.com.myriadeas.ibayar.processor.HelloWorldProcessor" />
+
+	<camelContext xmlns="http://camel.apache.org/schema/spring">
+	
+		<restConfiguration bindingMode="auto" component="jetty" port="8080"/>
+		
+		<rest path="/say">
+			<get uri="/hello" produces="text/html">
+				<to uri="direct:hello" />
+			</get>
+			<get uri="/bye" produces="text/html">
+				<to uri="direct:bye" />
+			</get>
+			<post uri="/bye">
+				<to uri="mock:update" />
+			</post>
+		</rest>
+		
+		<route>
+			<from uri="direct:start" />
+			<process ref="helloWorldProcessor" />
+			<to uri="mock:foo" />
+		</route>
+		
+		<route>
+			<from uri="direct:hello" />
+			<transform>
+				<simple>Hello World</simple>
+			</transform>
+		</route>
+		<route>
+			<from uri="direct:bye" />
+			<transform>
+				<simple>Bye World</simple>
+			</transform>
+		</route>
+
+	</camelContext>
+</beans>
